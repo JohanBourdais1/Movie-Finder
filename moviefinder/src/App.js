@@ -4,25 +4,44 @@ import Search from './components/Search';
 import Results from './components/Results';
 import Popup from './components/Popup';
 import Reset from './components/Reset';
+import Filter from './components/Filter';
+import Alert from '@mui/material/Alert';
+
 
 function App() {
   const [state, setState] = useState({
     s: "",
     results: JSON.parse(localStorage.getItem('results')) || [],
-    selected: JSON.parse(localStorage.getItem('selected')) || {}
+    selected: JSON.parse(localStorage.getItem('selected')) || {},
+    filters:{
+      movieType: "movie",
+      releaseBefore: "",
+      releaseAfter: "",
+      actors: "",
+      actorID: 0,
+      genre: "all"
+    },
   });
 
-  const apiurl = "http://www.omdbapi.com/?apikey=d1ac231";
+  const apiurlOMDB = "http://www.omdbapi.com/?apikey=d1ac231";
+  const apiurlTMDB = "https://api.themoviedb.org/3";
+
+  const options = {
+    method: 'GET',
+    headers: {
+      accept: 'application/json',
+      Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5YjQ5NGU4YmI4ZGIzYjI3NGE1NDU2N2Q0OTJjNTE4YSIsIm5iZiI6MTc2NjE0MzM5Mi40NDYsInN1YiI6IjY5NDUzNWEwOTQwNDFhMDE5MjgxMTdiYiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.xr0bJTD8lkcBs3uUtR1ZSEgl8SgCYStsSXTtH1Ze8xA'
+    }
+  };
 
   const search = (e) => {
     if (e.key === "Enter") {
-      axios(apiurl + "&s=" + state.s).then(({ data }) => {
+      axios(apiurlOMDB + "&s=" + state.s).then(({ data }) => {
         let results = data.Search;
         setState(prevState => {
           return { ...prevState, results: results }
         });
         localStorage.setItem('results', JSON.stringify(results));
-        console.log(data);
       });
     }
   }
@@ -36,7 +55,7 @@ function App() {
   }
 
   const openPopup = (id) => {
-    axios(apiurl + "&i=" + id).then(({ data }) => {
+    axios(apiurlOMDB + "&i=" + id).then(({ data }) => {
       let result = data;
 
       setState(prevState => {
@@ -57,11 +76,119 @@ function App() {
     setState({
       s: "",
       results: [],
-      selected: {}
+      selected: {},
+      filters:{
+        movieType: "movie",
+        releaseBefore: "",
+        releaseAfter: "",
+        actors: "",
+        actorID: 0,
+        genre: "all"
+      },
     });
     localStorage.removeItem('results');
     localStorage.removeItem('selected');
   }
+
+  const applyFilters = async () => {
+    try {
+      const { data } = await axios(apiurlTMDB + "/search/person?query=" + state.filters.actors, options);
+      if(data.results && data.results.length > 0) {
+        const actorId = data.results.reduce((prev, current) => prev.popularity > current.popularity ? prev : current).id;
+        console.log("Found actor IDs:", actorId);
+        setState(prevState => {
+          return {
+            ...prevState,
+            filters: {
+              ...prevState.filters,
+              actorID: actorId
+            }
+          }
+        });
+      } else {
+        console.log("No actor found with the name:", state.filters.actors);
+        <Alert severity="error">No actor named {state.filters.actors} found.</Alert>
+      }
+    } catch (error) {
+      console.error("Error fetching actor:", error);
+    }
+    console.log(apiurlTMDB + "/discover/" + state.filters.movieType + (state.filters.genre !== "all" || state.filters.releaseBefore !== "" || state.filters.releaseAfter !== "" || state.filters.actorID ? "?" : "") + (state.filters.genre !== "all" ? "with_genres=" + state.filters.genre : "") + (state.filters.releaseBefore !== "" ? "&primary_release_date.lte=" + state.filters.releaseBefore : "") + ( state.filters.releaseAfter !== "" ? "&primary_release_date.gte=" + state.filters.releaseAfter : "") + (state.filters.actorID ? "&with_cast=" + state.filters.actorID : ""));
+    axios(apiurlTMDB + "/discover/" + state.filters.movieType + (state.filters.genre !== "all" || state.filters.releaseBefore !== "" || state.filters.releaseAfter !== "" || state.filters.actorID ? "?" : "") + (state.filters.genre !== "all" ? "with_genres=" + state.filters.genre : "") + (state.filters.releaseBefore !== "" ? "&primary_release_date.lte=" + state.filters.releaseBefore : "") + ( state.filters.releaseAfter !== "" ? "&primary_release_date.gte=" + state.filters.releaseAfter : "") + (state.filters.actorID ? "&with_cast=" + state.filters.actorID : ""), options).then(({ data }) => {
+      let tmdbResults = data.results;
+      console.log("TMDB Results:", tmdbResults);
+    });
+  }
+
+  const handleMovieType = (e) => {
+    const movieType = e.target.value;
+    setState(prevState => {
+      return {
+        ...prevState,
+        filters: {
+          ...prevState.filters,
+          movieType: movieType
+        }
+      }
+    });
+  }
+
+  const handleReleaseBefore = (e) => {
+    const releaseBefore = e.target.value;
+    
+      console.log("Release before filter cleared");
+    
+    setState(prevState => {
+      return {
+        ...prevState,
+        filters: {
+          ...prevState.filters,
+          releaseBefore: releaseBefore+"-01-01"
+        }
+      }
+    });
+  }
+
+  const handleReleaseAfter = (e) => {
+    const releaseAfter = e.target.value;
+    setState(prevState => {
+      return {
+        ...prevState,
+        filters: {
+          ...prevState.filters,
+          releaseAfter: releaseAfter + "-12-31"
+        }
+      }
+    });
+  }
+
+  const handleActors = (e) => {
+    const actors = e.target.value;
+    actors.trim().replace(' ', '%20');
+    setState(prevState => {
+      return {
+        ...prevState,
+        filters: {
+          ...prevState.filters,
+          actors: actors
+        }
+      }
+    });
+  }
+
+  const handleGenre = (e) => {
+    const genre = e.target.value;
+    setState(prevState => {
+      return {
+        ...prevState,
+        filters: {
+          ...prevState.filters,
+          genre: genre
+        }
+      }
+    });
+  }
+
+
 
   return (
     <div className="App">
@@ -73,6 +200,7 @@ function App() {
         <Results results={state.results} openPopup={openPopup} />
         {(typeof state.selected.Title != "undefined") ? <Popup selected={state.selected} closePopup={closePopup} /> : false}
         { state.results.length > 0 && <Reset resetApp={resetApp} />}
+        { state.results.length === 0 && <Filter applyFilters={applyFilters}  handleMovieType={handleMovieType}  handleReleaseBefore={handleReleaseBefore} handleReleaseAfter={handleReleaseAfter} handleActors={handleActors} handleGenre={handleGenre} /> }
       </main>
     </div>
   );

@@ -101,7 +101,7 @@ section {
 .popup .content {
   display: block;
   width: 100%;
-  max-width: 960px;
+  max-width: 1100px;
   margin: 0px auto;
   padding: 25px;
 
@@ -123,19 +123,24 @@ section {
 
 .popup .content .plot {
 	display: flex;
-	flex-wrap: wrap;
 	margin: 0px -15px 30px;
+}
+
+.popup .content .plot .details {
+	display: flex;
+	margin: 0px -15px 30px;
+  flex-direction: column;
 }
 
 .popup .content .plot img {
 	flex: 1 1 50%;
-	max-width: 300px;
+	max-width: 450px;
 	padding: 0px 15px;
 }
 
 .popup .content .plot p {
 	flex: 1 1 50%;
-	padding: 15px;
+	padding: 5px 15px;
 }
 
 .popup .content .close {
@@ -175,4 +180,118 @@ section {
   cursor: pointer;
 
   transition: 0.4s ease-out;
+}
+
+.filter {
+  position: relative;
+  width: 300px;
+  box-sizing: border-box;
+  background: #202955;
+  left: 100%;
+}
+
+.filter h3 {
+  padding: 15px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.filter select {
+  width: 100%;
+  padding: 10px 15px;
+  margin: 10px 0;
+  background-color: #262b53;
+  color: #ffffff;
+  border: 1px solid #4484C4;
+  border-radius: 4px;
+  font-size: 16px;
+  font-family: 'montserrat', sans-serif;
+  cursor: pointer;
+  appearance: none;
+}
+
+.filter select:hover {
+  border-color: #248aff;
+}
+
+.filter select:focus {
+  outline: none;
+  box-shadow: 0 0 8px 3px #248aff;
+}
+
+.filter option {
+  background-color: #202955;
+  color: #ffffff;
+  padding: 10px;
+}
+
+#release-before,
+#release-after {
+  width: 100%;
+  padding: 10px 15px;
+  margin: 10px 0;
+  background-color: #262b53;
+  color: #ffffff;
+  border: 1px solid #4484C4;
+  border-radius: 4px;
+  font-size: 16px;
+  font-family: 'montserrat', sans-serif;
+  cursor: pointer;
+}
+
+#release-before:hover,
+#release-after:hover {
+  border-color: #248aff;
+}
+
+#release-before:focus,
+#release-after:focus {
+  outline: none;
+  box-shadow: 0 0 8px 3px #248aff;
+}
+
+#actors {
+  width: 100%;
+  padding: 10px 15px;
+  margin: 10px 0;
+  background-color: #262b53;
+  color: #ffffff;
+  border: 1px solid #4484C4;
+  border-radius: 4px;
+  font-size: 16px;
+  font-family: 'montserrat', sans-serif;
+  cursor: pointer;
+}
+
+#actors:hover {
+  border-color: #248aff;
+}
+
+#actors:focus {
+  outline: none;
+  box-shadow: 0 0 8px 3px #248aff;
+}
+
+#apply-filters {
+  width: 100%;
+  padding: 10px 15px;
+  margin: 10px 0;
+  background-color: #4484C4;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: 'montserrat', sans-serif;
+  cursor: pointer;
+  transition: 0.4s ease-out;
+}
+
+#apply-filters:hover {
+  background-color: #248aff;
+}
+
+#apply-filters:focus {
+  outline: none;
+  box-shadow: 0 0 8px 3px #248aff;
 }
