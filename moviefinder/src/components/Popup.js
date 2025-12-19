@@ -1,0 +1,20 @@
+import React from 'react'
+
+function Popup({ selected, closePopup }) {
+  return (
+    console.log(selected),
+    <section className='popup'>
+      <div className='content'>
+        <h2>{selected.Title} <span>({selected.Year})</span></h2>
+        <p className='rating'> Rating IMDB: {selected.imdbRating}/10</p>
+        <div className='plot'>
+            <img src={selected.Poster} alt={selected.Title} />
+            <p>{selected.Plot}</p>
+        </div>
+        <button className='close' onClick={closePopup}>Close</button>
+      </div>
+    </section>
+  )
+}
+
+export default Popup
