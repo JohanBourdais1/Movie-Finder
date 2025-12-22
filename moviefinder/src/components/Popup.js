@@ -1,14 +1,16 @@
 import React from 'react'
 
-function Popup({ selected, closePopup }) {
+function Popup({ selected, selectedTMDB, closePopup, }) {
+  console.log("Selected TMDB:", selectedTMDB);
+  console.log("Selected OMDB:", selected);
+  if (!selectedTMDB || !selected) return null;
   return (
-    console.log(selected),
     <section className='popup'>
       <div className='content'>
-        <h2>{selected.Title} <span>({selected.Year})</span></h2>
+        <h2>{selectedTMDB.title} <span>({selected.Year})</span></h2>
         <br />
         <div className='plot'>
-            <img src={selected.Poster} alt={selected.Title} />
+            <img src={`https://image.tmdb.org/t/p/original${selectedTMDB.poster_path}`} alt={selected.Title}/>
             <div className='details'>
                 <p>Type: {selected.Type}</p>
                 <p>Genre: {selected.Genre}</p>
@@ -18,9 +20,10 @@ function Popup({ selected, closePopup }) {
                 <p>Actors: {selected.Actors}</p>
                 <p>Country: {selected.Country}</p>
                 <p>Language: {selected.Language}</p>
-                <p>{selected.Plot}</p>
+                <p>{selected.Plot.length > selectedTMDB.overview.length ? selected.Plot : selectedTMDB.overview}</p>
             </div>
         </div>
+        <img id='backprop_img' src={`https://image.tmdb.org/t/p/original${selectedTMDB.backdrop_path}` !== null ? `https://image.tmdb.org/t/p/original${selectedTMDB.backdrop_path}` : ""} alt={selected.Title}/>
         <button className='close' onClick={closePopup}>Close</button>
       </div>
     </section>

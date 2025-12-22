@@ -1,9 +1,10 @@
 import React from 'react'
 
-function Search( {handleInput, search} ) {
+function Search( {handleInput, search, s} ) {
   return (
     <section className='searchbow-wrap'>
-      <input
+      <input 
+        id='search-bar'
         type="text"
         className='search-box'
         placeholder='Search for a movie...'

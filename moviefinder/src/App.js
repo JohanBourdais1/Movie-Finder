@@ -6,21 +6,29 @@ import Popup from './components/Popup';
 import Reset from './components/Reset';
 import Filter from './components/Filter';
 import Alert from '@mui/material/Alert';
-
+import SearchButton from './components/SearchButton';
 
 function App() {
   const [state, setState] = useState({
     s: "",
-    results: (localStorage.getItem('results') !== undefined && JSON.parse(localStorage.getItem('results'))) || [],
-    selected: (localStorage.getItem('selected') && JSON.parse(localStorage.getItem('selected'))) || {},
-    resultsTMDB: (localStorage.getItem('resultsTMDB') && JSON.parse(localStorage.getItem('resultsTMDB'))) || [],
+    selected: (localStorage.getItem('selected') !== undefined && JSON.parse(localStorage.getItem('selected'))) || {},
+    resultsTMDB: (localStorage.getItem('resultsTMDB') !== undefined && JSON.parse(localStorage.getItem('resultsTMDB'))) || [],
+    selectedTMDB: (localStorage.getItem('selectedTMDB') !== undefined && JSON.parse(localStorage.getItem('selectedTMDB'))) || {},
     filters:{
       movieType: "movie",
       releaseBefore: "",
       releaseAfter: "",
       actors: "",
       actorID: 0,
-      genre: "all"
+      genre: ""
+    },
+    tmpFilters:{
+      movieType: (localStorage.getItem('movieType') !== undefined && localStorage.getItem('movieType')) || "movie",
+      releaseBefore: (localStorage.getItem('releaseBefore') !== undefined && localStorage.getItem('releaseBefore')) || "",
+      releaseAfter: (localStorage.getItem('releaseAfter') !== undefined && localStorage.getItem('releaseAfter')) || "",
+      actors: (localStorage.getItem('actors') !== undefined && localStorage.getItem('actors')) || "",
+      actorID: (localStorage.getItem('actorID') !== undefined && localStorage.getItem('actorID')) || 0,
+      genre: (localStorage.getItem('genre') !== undefined && localStorage.getItem('genre')) || "all"
     },
   });
 
@@ -36,22 +44,39 @@ function App() {
   };
 
   const search = (e) => {
-    if (e.key === "Enter") {
-      axios(apiurlOMDB + "&s=" + state.s).then(({ data }) => {
-        if (data.Response === "False") {
-          console.error("Error:", data.Error);
+    if (e.key === "Enter" || e.target.className === "search-button") {
+      console.log("Searching for:", state.s);
+      console.log("With filters:", state.tmpFilters);
+      console.log(state.filters);
+      if (state.s.trim() === "") {
+        console.log(apiurlTMDB + "/discover/" + state.tmpFilters.movieType + ((state.tmpFilters.genre !== "all" && state.tmpFilters.genre !== "") || state.tmpFilters.releaseBefore !== "" || state.tmpFilters.releaseAfter !== "" || state.tmpFilters.actorID ? "?" : "") + (state.tmpFilters.genre !== "all" && state.tmpFilters.genre !== "" ? "with_genres=" + state.tmpFilters.genre : "") + (state.tmpFilters.releaseBefore !== "" ? "&primary_release_date.lte=" + state.tmpFilters.releaseBefore : "") + ( state.tmpFilters.releaseAfter !== "" ? "&primary_release_date.gte=" + state.tmpFilters.releaseAfter : "") + (state.tmpFilters.actorID ? "&with_cast=" + state.tmpFilters.actorID : ""));
+        axios(apiurlTMDB + "/discover/" + state.tmpFilters.movieType + ((state.tmpFilters.genre !== "all" && state.tmpFilters.genre !== "") || state.tmpFilters.releaseBefore !== "" || state.tmpFilters.releaseAfter !== "" || state.tmpFilters.actorID ? "?" : "") + (state.tmpFilters.genre !== "all" && state.tmpFilters.genre !== "" ? "with_genres=" + state.tmpFilters.genre : "") + (state.tmpFilters.releaseBefore !== "" ? "&primary_release_date.lte=" + state.tmpFilters.releaseBefore : "") + ( state.tmpFilters.releaseAfter !== "" ? "&primary_release_date.gte=" + state.tmpFilters.releaseAfter : "") + (state.tmpFilters.actorID ? "&with_cast=" + state.tmpFilters.actorID : ""), options).then(({ data }) => {
+          let tmdbResults = data.results;
+          console.log("TMDB Results:", tmdbResults);
           setState(prevState => {
-            return { ...prevState, results: [] }
+            return { ...prevState, resultsTMDB: tmdbResults }
           });
-          localStorage.setItem('results', JSON.stringify([]));
-          return;
-        }
-        let results = data.Search;
-        setState(prevState => {
-          return { ...prevState, results: results }
+          localStorage.setItem('resultsTMDB', JSON.stringify(tmdbResults));
         });
-        localStorage.setItem('results', JSON.stringify(results));
-      });
+      }
+      else {
+        axios(apiurlTMDB + "/search/" + state.tmpFilters.movieType + "?query=" + state.s + '&include_adult=true', options).then(({ data }) => {
+          if (data.Response === "False") {
+            console.error("Error:", data.Error);
+            setState(prevState => {
+              return { ...prevState, resultsTMDB: [] }
+            });
+            localStorage.setItem('resultsTMDB', JSON.stringify([]));
+            return;
+          }
+          console.log("TMDB Data:", data);
+          let results = data.results;
+          setState(prevState => {
+            return { ...prevState, resultsTMDB: results }
+          });
+          localStorage.setItem('resultsTMDB', JSON.stringify(results));
+        });
+      }
     }
   }
 
@@ -62,26 +87,22 @@ function App() {
     });
   }
 
-  const openPopup = (id) => {
-    axios(apiurlOMDB + "&i=" + id + "&plot=full").then(({ data }) => {
-      let result = data;
-
-      setState(prevState => {
-        return { ...prevState, selected: result }
-      });
-      localStorage.setItem('selected', JSON.stringify(result));
-    });
-  }
-
-  const openPopupTMDB = (title) => {
+  const openPopupTMDB = async (title, id, type) => {
     const t = title.replace(' ', '+').replace(':', '%3A');
     axios(apiurlOMDB + "&t=" + t + "&plot=full").then(({ data }) => {
       let result = data;
-
       setState(prevState => {
-        return { ...prevState, selected: result }
+        return { ...prevState, selected: result}
       });
       localStorage.setItem('selected', JSON.stringify(result));
+    });
+    axios(apiurlTMDB + "/" + type + "/" + id, options).then(({ data }) => {
+      let result = data;
+      console.log("Fetched TMDB details:", result);
+      setState(prevState => {
+        return { ...prevState, selectedTMDB: result}
+      });
+      localStorage.setItem('selectedTMDB', JSON.stringify(result));
     });
   }
 
@@ -93,10 +114,11 @@ function App() {
   }
 
   const resetApp = () => {
-    setState({
+    setState(prevState => ({
+      ...prevState,
       s: "",
-      results: [],
       selected: {},
+      selectedTMDB: {},
       resultsTMDB: [],
       filters:{
         movieType: "movie",
@@ -104,22 +126,31 @@ function App() {
         releaseAfter: "",
         actors: "",
         actorID: 0,
-        genre: "all"
-      },
-    });
-    localStorage.clear();
+        genre: ""
+      }
+    }));
+    localStorage.removeItem('resultsTMDB');
+    localStorage.removeItem('selected');
+    localStorage.removeItem('movieType');
+    localStorage.removeItem('releaseBefore');
+    localStorage.removeItem('releaseAfter');
+    localStorage.removeItem('actors');
+    localStorage.removeItem('actorID');
+    localStorage.removeItem('genre');
+    localStorage.removeItem('selectedTMDB');
+    document.getElementById('search-bar').value = "";
   }
 
   const applyFilters = async () => {
-    console.log(apiurlTMDB + "/discover/" + state.filters.movieType + (state.filters.genre !== "all" || state.filters.releaseBefore !== "" || state.filters.releaseAfter !== "" || state.filters.actorID ? "?" : "") + (state.filters.genre !== "all" ? "with_genres=" + state.filters.genre : "") + (state.filters.releaseBefore !== "" ? "&primary_release_date.lte=" + state.filters.releaseBefore : "") + ( state.filters.releaseAfter !== "" ? "&primary_release_date.gte=" + state.filters.releaseAfter : "") + (state.filters.actorID ? "&with_cast=" + state.filters.actorID : ""));
-    axios(apiurlTMDB + "/discover/" + state.filters.movieType + (state.filters.genre !== "all" || state.filters.releaseBefore !== "" || state.filters.releaseAfter !== "" || state.filters.actorID ? "?" : "") + (state.filters.genre !== "all" ? "with_genres=" + state.filters.genre : "") + (state.filters.releaseBefore !== "" ? "&primary_release_date.lte=" + state.filters.releaseBefore : "") + ( state.filters.releaseAfter !== "" ? "&primary_release_date.gte=" + state.filters.releaseAfter : "") + (state.filters.actorID ? "&with_cast=" + state.filters.actorID : ""), options).then(({ data }) => {
-      let tmdbResults = data.results;
-      console.log("TMDB Results:", tmdbResults);
-      setState(prevState => {
-        return { ...prevState, resultsTMDB: tmdbResults }
-      });
-      localStorage.setItem('resultsTMDB', JSON.stringify(tmdbResults));
+    setState(prevState => {
+      return {
+        ...prevState,
+        filters: {
+          ...prevState.tmpFilters
+        }
+      }
     });
+    document.getElementById('search-button').click();
   }
 
   const handleMovieType = (e) => {
@@ -127,28 +158,27 @@ function App() {
     setState(prevState => {
       return {
         ...prevState,
-        filters: {
-          ...prevState.filters,
+        tmpFilters: {
+          ...prevState.tmpFilters,
           movieType: movieType
         }
       }
     });
+    localStorage.setItem('movieType', movieType);
   }
 
   const handleReleaseBefore = (e) => {
     const releaseBefore = e.target.value;
-    
-      console.log("Release before filter cleared");
-    
     setState(prevState => {
       return {
         ...prevState,
-        filters: {
-          ...prevState.filters,
+        tmpFilters: {
+          ...prevState.tmpFilters,
           releaseBefore: releaseBefore+"-01-01"
         }
       }
     });
+    localStorage.setItem('releaseBefore', releaseBefore);
   }
 
   const handleReleaseAfter = (e) => {
@@ -156,27 +186,28 @@ function App() {
     setState(prevState => {
       return {
         ...prevState,
-        filters: {
-          ...prevState.filters,
+        tmpFilters: {
+          ...prevState.tmpFilters,
           releaseAfter: releaseAfter + "-12-31"
         }
       }
     });
+    localStorage.setItem('releaseAfter', releaseAfter);
   }
 
   const handleActors = async (e) => {
     const actors = e.target.value;
     actors.trim().replace(' ', '%20');
     try {
-      const { data } = await axios(apiurlTMDB + "/search/person?query=" + actors, options);
+      const { data } = axios(apiurlTMDB + "/search/person?query=" + actors, options);
       if(data.results && data.results.length > 0) {
         const actorId = data.results.reduce((prev, current) => prev.popularity > current.popularity ? prev : current).id;
-        console.log("Found actor IDs:", actorId);
+        localStorage.setItem('actorID', actorId);
         setState(prevState => {
           return {
             ...prevState,
-            filters: {
-              ...prevState.filters,
+            tmpFilters: {
+              ...prevState.tmpFilters,
               actorID: actorId
             }
           }
@@ -191,12 +222,13 @@ function App() {
     setState(prevState => {
       return {
         ...prevState,
-        filters: {
-          ...prevState.filters,
+        tmpFilters: {
+          ...prevState.tmpFilters,
           actors: actors
         }
       }
     });
+    localStorage.setItem('actors', actors);
   }
 
   const handleGenre = (e) => {
@@ -204,15 +236,36 @@ function App() {
     setState(prevState => {
       return {
         ...prevState,
-        filters: {
-          ...prevState.filters,
+        tmpFilters: {
+          ...prevState.tmpFilters,
           genre: genre
         }
       }
     });
+    localStorage.setItem('genre', genre);
   }
 
-
+  const resetFilters = () => {
+    setState(prevState => {
+      return {
+        ...prevState,
+        tmpFilters: {
+          movieType: "movie",
+          releaseBefore: "",
+          releaseAfter: "",
+          actors: "",
+          actorID: 0,
+          genre: ""
+        }
+      }
+    });
+    localStorage.removeItem('movieType');
+    localStorage.removeItem('releaseBefore');
+    localStorage.removeItem('releaseAfter');
+    localStorage.removeItem('actors');
+    localStorage.removeItem('actorID');
+    localStorage.removeItem('genre');
+  }
 
   return (
     <div className="App">
@@ -220,11 +273,13 @@ function App() {
         <h1>Movie Database</h1>
       </header>
       <main>
-        <Search handleInput={handleInput} search={search} />
-        <Results results={state.results} openPopup={openPopup} resultsTMDB={state.resultsTMDB} openPopupTMDB={openPopupTMDB} />
-        {(typeof state.selected.Title != "undefined") ? <Popup selected={state.selected} closePopup={closePopup} /> : false}
-        { (state.results.length > 0 || state.resultsTMDB.length > 0) && <Reset resetApp={resetApp} />}
-        { (state.results.length === 0 && state.resultsTMDB.length === 0) && <Filter applyFilters={applyFilters}  handleMovieType={handleMovieType}  handleReleaseBefore={handleReleaseBefore} handleReleaseAfter={handleReleaseAfter} handleActors={handleActors} handleGenre={handleGenre} /> }
+        <Search handleInput={handleInput} search={search} s={state.s}/>
+        <SearchButton search={search} />
+        <Results resultsTMDB={state.resultsTMDB} openPopupTMDB={openPopupTMDB} type={state.filters.movieType}/>
+        {console.log("Current selected movie:", state.selectedTMDB)}
+        {(typeof state.selected.Title != "undefined") ? <Popup selected={state.selected} selectedTMDB={state.selectedTMDB} closePopup={closePopup} /> : false}
+        { (state.resultsTMDB.length > 0) && <Reset resetApp={resetApp} />}
+        {(typeof state.selected.Title === "undefined") ? <Filter applyFilters={applyFilters}  handleMovieType={handleMovieType}  handleReleaseBefore={handleReleaseBefore} handleReleaseAfter={handleReleaseAfter} handleActors={handleActors} handleGenre={handleGenre} defaultType={state.tmpFilters.movieType} defaultReleaseAfter={state.tmpFilters.releaseAfter} defaultReleaseBefore={state.tmpFilters.releaseBefore} defaultActors={state.tmpFilters.actors} defaultGenre={state.tmpFilters.genre} resetFilters={resetFilters} /> : false}
       </main>
     </div>
   );
