@@ -6,7 +6,7 @@ function Popup({ selected, closePopup }) {
     <section className='popup'>
       <div className='content'>
         <h2>{selected.Title} <span>({selected.Year})</span></h2>
-        <p className='rating'> Rating IMDB: {selected.imdbRating}/10</p>
+        <br />
         <div className='plot'>
             <img src={selected.Poster} alt={selected.Title} />
             <div className='details'>

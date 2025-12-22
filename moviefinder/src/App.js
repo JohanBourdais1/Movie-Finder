@@ -11,8 +11,9 @@ import Alert from '@mui/material/Alert';
 function App() {
   const [state, setState] = useState({
     s: "",
-    results: JSON.parse(localStorage.getItem('results')) || [],
-    selected: JSON.parse(localStorage.getItem('selected')) || {},
+    results: (localStorage.getItem('results') !== undefined && JSON.parse(localStorage.getItem('results'))) || [],
+    selected: (localStorage.getItem('selected') && JSON.parse(localStorage.getItem('selected'))) || {},
+    resultsTMDB: (localStorage.getItem('resultsTMDB') && JSON.parse(localStorage.getItem('resultsTMDB'))) || [],
     filters:{
       movieType: "movie",
       releaseBefore: "",
@@ -37,6 +38,14 @@ function App() {
   const search = (e) => {
     if (e.key === "Enter") {
       axios(apiurlOMDB + "&s=" + state.s).then(({ data }) => {
+        if (data.Response === "False") {
+          console.error("Error:", data.Error);
+          setState(prevState => {
+            return { ...prevState, results: [] }
+          });
+          localStorage.setItem('results', JSON.stringify([]));
+          return;
+        }
         let results = data.Search;
         setState(prevState => {
           return { ...prevState, results: results }
@@ -48,14 +57,25 @@ function App() {
 
   const handleInput = (e) => {
     let s = e.target.value;
-    
     setState(prevState => {
       return { ...prevState, s: s }
     });
   }
 
   const openPopup = (id) => {
-    axios(apiurlOMDB + "&i=" + id).then(({ data }) => {
+    axios(apiurlOMDB + "&i=" + id + "&plot=full").then(({ data }) => {
+      let result = data;
+
+      setState(prevState => {
+        return { ...prevState, selected: result }
+      });
+      localStorage.setItem('selected', JSON.stringify(result));
+    });
+  }
+
+  const openPopupTMDB = (title) => {
+    const t = title.replace(' ', '+').replace(':', '%3A');
+    axios(apiurlOMDB + "&t=" + t + "&plot=full").then(({ data }) => {
       let result = data;
 
       setState(prevState => {
@@ -77,6 +97,7 @@ function App() {
       s: "",
       results: [],
       selected: {},
+      resultsTMDB: [],
       filters:{
         movieType: "movie",
         releaseBefore: "",
@@ -86,36 +107,18 @@ function App() {
         genre: "all"
       },
     });
-    localStorage.removeItem('results');
-    localStorage.removeItem('selected');
+    localStorage.clear();
   }
 
   const applyFilters = async () => {
-    try {
-      const { data } = await axios(apiurlTMDB + "/search/person?query=" + state.filters.actors, options);
-      if(data.results && data.results.length > 0) {
-        const actorId = data.results.reduce((prev, current) => prev.popularity > current.popularity ? prev : current).id;
-        console.log("Found actor IDs:", actorId);
-        setState(prevState => {
-          return {
-            ...prevState,
-            filters: {
-              ...prevState.filters,
-              actorID: actorId
-            }
-          }
-        });
-      } else {
-        console.log("No actor found with the name:", state.filters.actors);
-        <Alert severity="error">No actor named {state.filters.actors} found.</Alert>
-      }
-    } catch (error) {
-      console.error("Error fetching actor:", error);
-    }
     console.log(apiurlTMDB + "/discover/" + state.filters.movieType + (state.filters.genre !== "all" || state.filters.releaseBefore !== "" || state.filters.releaseAfter !== "" || state.filters.actorID ? "?" : "") + (state.filters.genre !== "all" ? "with_genres=" + state.filters.genre : "") + (state.filters.releaseBefore !== "" ? "&primary_release_date.lte=" + state.filters.releaseBefore : "") + ( state.filters.releaseAfter !== "" ? "&primary_release_date.gte=" + state.filters.releaseAfter : "") + (state.filters.actorID ? "&with_cast=" + state.filters.actorID : ""));
     axios(apiurlTMDB + "/discover/" + state.filters.movieType + (state.filters.genre !== "all" || state.filters.releaseBefore !== "" || state.filters.releaseAfter !== "" || state.filters.actorID ? "?" : "") + (state.filters.genre !== "all" ? "with_genres=" + state.filters.genre : "") + (state.filters.releaseBefore !== "" ? "&primary_release_date.lte=" + state.filters.releaseBefore : "") + ( state.filters.releaseAfter !== "" ? "&primary_release_date.gte=" + state.filters.releaseAfter : "") + (state.filters.actorID ? "&with_cast=" + state.filters.actorID : ""), options).then(({ data }) => {
       let tmdbResults = data.results;
       console.log("TMDB Results:", tmdbResults);
+      setState(prevState => {
+        return { ...prevState, resultsTMDB: tmdbResults }
+      });
+      localStorage.setItem('resultsTMDB', JSON.stringify(tmdbResults));
     });
   }
 
@@ -161,9 +164,30 @@ function App() {
     });
   }
 
-  const handleActors = (e) => {
+  const handleActors = async (e) => {
     const actors = e.target.value;
     actors.trim().replace(' ', '%20');
+    try {
+      const { data } = await axios(apiurlTMDB + "/search/person?query=" + actors, options);
+      if(data.results && data.results.length > 0) {
+        const actorId = data.results.reduce((prev, current) => prev.popularity > current.popularity ? prev : current).id;
+        console.log("Found actor IDs:", actorId);
+        setState(prevState => {
+          return {
+            ...prevState,
+            filters: {
+              ...prevState.filters,
+              actorID: actorId
+            }
+          }
+        });
+      } else {
+        console.log("No actor found with the name:", actors);
+        <Alert severity="error">No actor named {actors} found.</Alert>
+      }
+    } catch (error) {
+      console.error("Error fetching actor:", error);
+    }
     setState(prevState => {
       return {
         ...prevState,
@@ -197,10 +221,10 @@ function App() {
       </header>
       <main>
         <Search handleInput={handleInput} search={search} />
-        <Results results={state.results} openPopup={openPopup} />
+        <Results results={state.results} openPopup={openPopup} resultsTMDB={state.resultsTMDB} openPopupTMDB={openPopupTMDB} />
         {(typeof state.selected.Title != "undefined") ? <Popup selected={state.selected} closePopup={closePopup} /> : false}
-        { state.results.length > 0 && <Reset resetApp={resetApp} />}
-        { state.results.length === 0 && <Filter applyFilters={applyFilters}  handleMovieType={handleMovieType}  handleReleaseBefore={handleReleaseBefore} handleReleaseAfter={handleReleaseAfter} handleActors={handleActors} handleGenre={handleGenre} /> }
+        { (state.results.length > 0 || state.resultsTMDB.length > 0) && <Reset resetApp={resetApp} />}
+        { (state.results.length === 0 && state.resultsTMDB.length === 0) && <Filter applyFilters={applyFilters}  handleMovieType={handleMovieType}  handleReleaseBefore={handleReleaseBefore} handleReleaseAfter={handleReleaseAfter} handleActors={handleActors} handleGenre={handleGenre} /> }
       </main>
     </div>
   );
