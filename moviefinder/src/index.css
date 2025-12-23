@@ -242,8 +242,8 @@ section {
   padding: 10px;
 }
 
-#release-before,
-#release-after {
+#release_before_filter,
+#release_after_filter {
   width: 100%;
   padding: 10px 15px;
   margin: 10px 0;
@@ -256,18 +256,18 @@ section {
   cursor: pointer;
 }
 
-#release-before:hover,
-#release-after:hover {
+#release_before_filter:hover,
+#release_after_filter:hover {
   border-color: #248aff;
 }
 
-#release-before:focus,
-#release-after:focus {
+#release_before_filter:focus,
+#release_after_filter:focus {
   outline: none;
   box-shadow: 0 0 8px 3px #248aff;
 }
 
-#actors {
+#actors_filter {
   width: 100%;
   padding: 10px 15px;
   margin: 10px 0;
@@ -280,11 +280,11 @@ section {
   cursor: pointer;
 }
 
-#actors:hover {
+#actors_filter:hover {
   border-color: #248aff;
 }
 
-#actors:focus {
+#actors_filter:focus {
   outline: none;
   box-shadow: 0 0 8px 3px #248aff;
 }
@@ -377,4 +377,58 @@ section {
   z-index: -1;
   filter: blur(8px);
   opacity: 0.3;
+}
+
+#director_filter,
+#release_year_filter {
+  width: 100%;
+  padding: 10px 15px;
+  margin: 10px 0;
+  background-color: #262b53;
+  color: #ffffff;
+  border: 1px solid #4484C4;
+  border-radius: 4px;
+  font-size: 16px;
+  font-family: 'montserrat', sans-serif;
+  cursor: pointer;
+}
+
+#director_filter,
+#release_year_filter:hover {
+  border-color: #248aff;
+}
+
+#director_filter:focus,
+#release_year_filter:focus {
+  outline: none;
+  box-shadow: 0 0 8px 3px #248aff;
+}
+
+.active-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 8px 0;
+}
+
+.filter-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #1f1f1f;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+}
+
+.filter-chip .remove {
+  background: none;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+}
+
+.filter-chip .remove:hover {
+  color: white;
 }

@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react'
 
 import axios from 'axios';
 
-function Filter( {applyFilters, handleMovieType, handleReleaseBefore, handleReleaseAfter, handleActors, handleGenre, defaultType, defaultReleaseAfter, defaultReleaseBefore, defaultActors, defaultGenre, resetFilters} ) {
+function Filter( {applyFilters, handleMovieType, handleReleaseYear, handleReleaseBefore, handleReleaseAfter, handleActors, handleDirector, handleGenre, defaultType, defaultReleaseAfter, defaultReleaseBefore, defaultReleaseYear, defaultActors, defaultDirector, defaultGenre, resetFilters} ) {
     const [state, setState] = useState({
         genresList: []
     });
@@ -28,22 +28,28 @@ function Filter( {applyFilters, handleMovieType, handleReleaseBefore, handleRele
     <section className='filter'>
     <h3>Filter options</h3>
     <p>
-        Type: <select id='movie-type' onChange={handleMovieType} defaultValue={defaultType}>
-          <option key={"movie"} value="movie">Movie</option>
-          <option key={"tv"} value="tv">Series</option>
+        Type: <select id='movie_type_filter' onChange={handleMovieType} defaultValue={defaultType}>
+          <option key={"Movie"} value="Movie">Movie</option>
+          <option key={"Tv"} value="Tv">Series</option>
         </select>
     </p>
     <p>
-        Release year after: <input id='release-after' type="number" placeholder='e.g. 2020' min="1950" max={new Date().getFullYear()} onChange={handleReleaseAfter} defaultValue={defaultReleaseAfter}/>
+        Release year: <input id='release_year_filter' type="number" placeholder='e.g. 2020' min="1950" max={new Date().getFullYear()} onChange={handleReleaseYear} defaultValue={defaultReleaseYear}/>
     </p>
     <p>
-        Release year before: <input  id='release-before' type="number" placeholder='e.g. 2020' min="1950" max={new Date().getFullYear()} onChange={handleReleaseBefore} defaultValue={defaultReleaseBefore} />
+        Released after: <input id='release_after_filter' type="number" placeholder='e.g. 2020' min="1950" max={new Date().getFullYear()} onChange={handleReleaseAfter} defaultValue={defaultReleaseAfter}/>
     </p>
     <p>
-        Actors: <input id='actors' type="text" placeholder='e.g. Robert Downey Jr.' onChange={handleActors} defaultValue={defaultActors} />
+        Released before: <input  id='release_before_filter' type="number" placeholder='e.g. 2020' min="1950" max={new Date().getFullYear()} onChange={handleReleaseBefore} defaultValue={defaultReleaseBefore} />
     </p>
     <p>
-        Genre: <select id='genre' onChange={handleGenre} value={defaultGenre}>
+        Actors: <input id='actors_filter' type="text" placeholder='e.g. Robert Downey Jr.' onChange={handleActors} defaultValue={defaultActors} />
+    </p>
+    <p>
+        Director: <input id='director_filter' type="text" placeholder='e.g. Steven Spielberg' onChange={handleDirector} defaultValue={defaultDirector} />
+    </p>
+    <p>
+        Genre: <select id='genre_filter' onChange={handleGenre} value={defaultGenre}>
           <option value="all">All</option>
             {state.genresList.map( (genre) => (
                 <option value={genre.id} key={genre.id}>{genre.name}</option>

@@ -3,7 +3,7 @@ import React from 'react'
 function Popup({ selected, selectedTMDB, closePopup, }) {
   console.log("Selected TMDB:", selectedTMDB);
   console.log("Selected OMDB:", selected);
-  if (!selectedTMDB || !selected) return null;
+  if ((!selectedTMDB || Object.keys(selectedTMDB).length === 0) && !selected) return null;
   return (
     <section className='popup'>
       <div className='content'>
@@ -23,7 +23,7 @@ function Popup({ selected, selectedTMDB, closePopup, }) {
                 <p>{selected.Plot.length > selectedTMDB.overview.length ? selected.Plot : selectedTMDB.overview}</p>
             </div>
         </div>
-        <img id='backprop_img' src={`https://image.tmdb.org/t/p/original${selectedTMDB.backdrop_path}` !== null ? `https://image.tmdb.org/t/p/original${selectedTMDB.backdrop_path}` : ""} alt={selected.Title}/>
+        <img id='backprop_img' src={selectedTMDB.backdrop_path !== null ? `https://image.tmdb.org/t/p/original${selectedTMDB.backdrop_path}` : null} alt={selected.Title}/>
         <button className='close' onClick={closePopup}>Close</button>
       </div>
     </section>
