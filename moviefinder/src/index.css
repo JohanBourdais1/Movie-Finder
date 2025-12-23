@@ -432,3 +432,36 @@ section {
 .filter-chip .remove:hover {
   color: white;
 }
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.pagination button {
+  background: #1e1e1e;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: ease-out 0.2s ease;
+}
+
+.pagination button:hover:not(:disabled) {
+  background: #e50914;
+}
+
+.pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  font-size: 14px;
+  color: #ccc;
+}

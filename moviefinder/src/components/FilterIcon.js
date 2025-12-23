@@ -2,6 +2,7 @@ import React from 'react'
 
 function FilterIcon( {  filters } ) {
     let table = [];
+    console.log("Filters in FilterIcon:", filters.genreName);
     Object.keys(filters).forEach( (f) => {
         if (f === "movie_type") {
             table.push({key: f, value: filters[f], icon: "🎬"});
@@ -22,7 +23,7 @@ function FilterIcon( {  filters } ) {
             table.push({key: f, value: filters[f], icon: "🎥"});
         }
         else if (f === "genre") {
-            table.push({key: f, value: filters[f], icon: "🍿"});
+            table.push({key: f, value: filters["genreName"], icon: "🍿"});
         }
     });
   return (

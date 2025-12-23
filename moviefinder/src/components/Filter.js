@@ -14,7 +14,7 @@ function Filter( {applyFilters, handleMovieType, handleReleaseYear, handleReleas
     method: 'GET',
     headers: {
       accept: 'application/json',
-      Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5YjQ5NGU4YmI4ZGIzYjI3NGE1NDU2N2Q0OTJjNTE4YSIsIm5iZiI6MTc2NjE0MzM5Mi40NDYsInN1YiI6IjY5NDUzNWEwOTQwNDFhMDE5MjgxMTdiYiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.xr0bJTD8lkcBs3uUtR1ZSEgl8SgCYStsSXTtH1Ze8xA'
+      Authorization: 'Bearer ' + process.env.REACT_APP_TMDB_AUTH_TOKEN
     }
   };
     axios.get(apiurlTMDB + '/genre/movie/list', options).then(({ data }) => {
