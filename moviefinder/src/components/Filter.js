@@ -50,7 +50,7 @@ function Filter( {applyFilters, handleMovieType, handleReleaseYear, handleReleas
     </p>
     <p>
         Genre: <select id='genre_filter' onChange={handleGenre} value={defaultGenre}>
-          <option value="all">All</option>
+          <option value="All">All</option>
             {state.genresList.map( (genre) => (
                 <option value={genre.id} key={genre.id}>{genre.name}</option>
             ))}

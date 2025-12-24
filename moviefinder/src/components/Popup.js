@@ -1,9 +1,6 @@
 import React from 'react'
 
 function Popup({ selected, selectedTMDB, closePopup, }) {
-  console.log("Selected TMDB:", !selectedTMDB);
-  console.log("Selected OMDB:", selected);
-  console.log(Object.keys(selectedTMDB).length);
   if ((!selectedTMDB || Object.keys(selectedTMDB).length === 0) || !selected) return null;
   return (
     <section className='popup'>

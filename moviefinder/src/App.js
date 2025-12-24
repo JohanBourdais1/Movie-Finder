@@ -5,7 +5,6 @@ import Results from './components/Results';
 import Popup from './components/Popup';
 import Reset from './components/Reset';
 import Filter from './components/Filter';
-import Alert from '@mui/material/Alert';
 import SearchButton from './components/SearchButton';
 import FilterIcon from './components/FilterIcon';
 import Pagination from './components/Pagination';
@@ -26,7 +25,8 @@ function App() {
       directorID: 0,
       actorID: 0,
       genre: "",
-      genreName: ""
+      genreName: "All",
+      state: 0
     },
     tmpFilters:{
       movie_type: (localStorage.getItem('movie_type') !== undefined && localStorage.getItem('movie_type')) || "Movie",
@@ -38,7 +38,7 @@ function App() {
       directorID: (localStorage.getItem('directorID') !== undefined && localStorage.getItem('directorID')) || 0,
       actorID: (localStorage.getItem('actorID') !== undefined && localStorage.getItem('actorID')) || 0,
       genre: (localStorage.getItem('genre') !== undefined && localStorage.getItem('genre')) || "All",
-      genreName: (localStorage.getItem('genreName') !== undefined && localStorage.getItem('genreName')) || ""
+      genreName: (localStorage.getItem('genreName') !== undefined && localStorage.getItem('genreName')) || "All",
     },
     total_pages: (localStorage.getItem('total_pages') !== undefined && localStorage.getItem('total_pages')) || 0,
     current_page: (localStorage.getItem('current_page') !== undefined && localStorage.getItem('current_page')) || 1
@@ -56,40 +56,29 @@ function App() {
   };
 
   const search = (e) => {
-    setState(prevState => {
-      return {
-        ...prevState,
-        filters: {
-          ...prevState.tmpFilters
-        }
-      }
-    });
-    console.log(localStorage.getItem('current_page'), state.current_page);
-
-    console.log(e);
-    if (e.key === "Enter" || e.target.className === "search-button") {
+    if ((e.key === "Enter" || e.target.className === "search-button") && (state.filters.state === 1 || state.s.trim() !== "" || state.total_pages !== 0)) {
       console.log("filters", state.filters);
-      console.log(state.tmpFilters);
+      console.log(state.filters);
       if (state.s.trim() === "") {
-        console.log(apiurlTMDB + "/discover/" + state.tmpFilters.movie_type.toLowerCase() + 
-          ((state.tmpFilters.genre !== "All" && state.tmpFilters.genre !== "") || state.tmpFilters.directorID || state.tmpFilters.release_year !== "" || state.tmpFilters.release_before !== "" || state.tmpFilters.release_after !== "" || state.tmpFilters.actorID ? "?" : "") + 
-          (state.tmpFilters.genre !== "All" && state.tmpFilters.genre !== "" ? "with_genres=" + state.tmpFilters.genre : "") + 
-          (state.tmpFilters.release_before !== "" ? (state.tmpFilters.movie_type === "Movie" ? "&primary_release_date.lte=" : "&first_air_date.lte=") + state.tmpFilters.release_before : "") + 
-          (state.tmpFilters.release_after !== "" ? (state.tmpFilters.movie_type === "Movie" ? "&primary_release_date.gte=" : "&first_air_date.gte=") + state.tmpFilters.release_after : "") + 
-          (state.tmpFilters.actorID && state.tmpFilters.movie_type === "Movie" ? "&with_cast=" + state.tmpFilters.actorID : "") + 
-          (state.tmpFilters.directorID && state.tmpFilters.movie_type === "Movie" ? "&with_crew=" + state.tmpFilters.directorID : "") + 
-          (state.tmpFilters.release_year !== "" ? (state.tmpFilters.movie_type === "Movie" ? "&primary_release_year=" : "&first_air_date_year=") + state.tmpFilters.release_year : "") + 
-          (state.total_pages !== 0 && state.current_page !== 1 ? "&page=" + state.current_page : ""));
+        console.log(apiurlTMDB + "/discover/" + state.filters.movie_type.toLowerCase() + 
+          ((state.filters.genre !== "All" && state.filters.genre !== "") || state.total_pages || state.filters.directorID || state.filters.release_year !== "" || state.filters.release_before !== "" || state.filters.release_after !== "" || state.filters.actorID ? "?" : "") + 
+          (state.filters.genre !== "All" && state.filters.genre !== "" ? "&with_genres=" + state.filters.genre : "") + 
+          (state.filters.release_before !== "" ? (state.filters.movie_type === "Movie" ? "&primary_release_date.lte=" : "&first_air_date.lte=") + state.filters.release_before : "") + 
+          (state.filters.release_after !== "" ? (state.filters.movie_type === "Movie" ? "&primary_release_date.gte=" : "&first_air_date.gte=") + state.filters.release_after : "") + 
+          (state.filters.actorID && state.filters.movie_type === "Movie" ? "&with_cast=" + state.filters.actorID : "") + 
+          (state.filters.directorID && state.filters.movie_type === "Movie" ? "&with_crew=" + state.filters.directorID : "") + 
+          (state.filters.release_year !== "" ? (state.filters.movie_type === "Movie" ? "&primary_release_year=" : "&first_air_date_year=") + state.filters.release_year : "") + 
+          (state.total_pages !== 0 ? "&page=" + state.current_page : ""));
 
         axios(apiurlTMDB + "/discover/" + state.tmpFilters.movie_type.toLowerCase() + 
-          ((state.tmpFilters.genre !== "All" && state.tmpFilters.genre !== "") || state.tmpFilters.directorID || state.tmpFilters.release_year !== "" || state.tmpFilters.release_before !== "" || state.tmpFilters.release_after !== "" || state.tmpFilters.actorID ? "?" : "") + 
-          (state.tmpFilters.genre !== "All" && state.tmpFilters.genre !== "" ? "with_genres=" + state.tmpFilters.genre : "") + 
+          ((state.tmpFilters.genre !== "All" && state.tmpFilters.genre !== "") || state.total_pages || state.tmpFilters.directorID || state.tmpFilters.release_year !== "" || state.tmpFilters.release_before !== "" || state.tmpFilters.release_after !== "" || state.tmpFilters.actorID ? "?" : "") + 
+          (state.tmpFilters.genre !== "All" && state.tmpFilters.genre !== "" ? "&with_genres=" + state.tmpFilters.genre : "") + 
           (state.tmpFilters.release_before !== "" ? (state.tmpFilters.movie_type === "Movie" ? "&primary_release_date.lte=" : "&first_air_date.lte=") + state.tmpFilters.release_before : "") + 
           (state.tmpFilters.release_after !== "" ? (state.tmpFilters.movie_type === "Movie" ? "&primary_release_date.gte=" : "&first_air_date.gte=") + state.tmpFilters.release_after : "") + 
           (state.tmpFilters.actorID && state.tmpFilters.movie_type === "Movie" ? "&with_cast=" + state.tmpFilters.actorID : "") + 
           (state.tmpFilters.directorID && state.tmpFilters.movie_type === "Movie" ? "&with_crew=" + state.tmpFilters.directorID : "") + 
           (state.tmpFilters.release_year !== "" ? (state.tmpFilters.movie_type === "Movie" ? "&primary_release_year=" : "&first_air_date_year=") + state.tmpFilters.release_year : "" ) +
-          (state.total_pages !== 0 && state.current_page !== 1 ? "&page=" + state.current_page : "")
+          (state.total_pages !== 0 ? "&page=" + state.current_page : "")
           , options).then(({ data }) => {
           let tmdbResults = data.results;
           console.log("TMDB Results:", tmdbResults);
@@ -102,9 +91,8 @@ function App() {
         });
       }
       else {
-        console.log(state.current_page);
-        console.log(apiurlTMDB + "/search/" + state.tmpFilters.movie_type.toLowerCase() + "?query=" + state.s + (state.total_pages !== 0 && state.current_page !== 1 ? "&page=" + state.current_page : ""));
-        axios(apiurlTMDB + "/search/" + state.tmpFilters.movie_type.toLowerCase() + "?query=" + state.s + (state.total_pages !== 0  && state.current_page !== 1 ? "&page=" + state.current_page : ""), options).then(({ data }) => {
+        console.log(apiurlTMDB + "/search/" + state.tmpFilters.movie_type.toLowerCase() + "?query=" + state.s + (state.total_pages !== 0 ? "&page=" + state.current_page : ""));
+        axios(apiurlTMDB + "/search/" + state.tmpFilters.movie_type.toLowerCase() + "?query=" + state.s + (state.total_pages !== 0  ? "&page=" + state.current_page : ""), options).then(({ data }) => {
           if (data.Response === "False") {
             console.error("Error:", data.Error);
             setState(prevState => {
@@ -122,32 +110,40 @@ function App() {
           localStorage.setItem("current_page", data.page);
         });
       }
+      setState(prevState => {
+        return {
+          ...prevState,
+          filters: {
+            ...prevState.filters,
+            state: 0
+          }
+        }
+      });
     }
   }
 
   const handleInput = (e) => {
-    let s = e.target.value;
+    let s = e.target.value.replace(/[ ]/g, '+').replace(/[:]/g, '%3A');
     setState(prevState => {
       return { ...prevState, s: s }
     });
   }
 
-  const openPopupTMDB = async (title, id, type) => {
-    const t = title.replace(' ', '+').replace(':', '%3A');
-    axios(apiurlOMDB + "&t=" + t + "&plot=full").then(({ data }) => {
+  const openPopupTMDB = ( id, type) => {
+    axios(apiurlTMDB + "/" + type.toLowerCase() + "/" + id, options).then(({ data }) => {
       let result = data;
+      setState(prevState => {
+        return { ...prevState, selectedTMDB: result}
+      });
+      localStorage.setItem('selectedTMDB', JSON.stringify(result));
+      axios(apiurlOMDB + "&i=" + result.imdb_id + "&plot=full").then(({ data }) => {
+      result = data;
+      console.log("Fetched OMDB details:", result);
       setState(prevState => {
         return { ...prevState, selected: result}
       });
       localStorage.setItem('selected', JSON.stringify(result));
     });
-    axios(apiurlTMDB + "/" + type.toLowerCase() + "/" + id, options).then(({ data }) => {
-      let result = data;
-      console.log("Fetched TMDB details:", result);
-      setState(prevState => {
-        return { ...prevState, selectedTMDB: result}
-      });
-      localStorage.setItem('selectedTMDB', JSON.stringify(result));
     });
   }
 
@@ -175,7 +171,8 @@ function App() {
         director: "",
         directorID: 0,
         genre: "",
-        genreName: ""
+        genreName: "All",
+        state: 0
       },
       total_pages: 0,
       current_page: 1
@@ -203,11 +200,11 @@ function App() {
       return {
         ...prevState,
         filters: {
-          ...prevState.tmpFilters
+          ...prevState.tmpFilters,
+          state: 1
         }
       }
     });
-    document.getElementById('search-button').click();
   }
 
   const handleMovieType = (e) => {
@@ -279,26 +276,17 @@ function App() {
             ...prevState,
             tmpFilters: {
               ...prevState.tmpFilters,
-              actorID: actorId
+              actorID: actorId,
+              actors: actors
             }
           }
         });
       } else {
         console.log("No actor found with the name:", actors);
-        <Alert severity="error">No actor named {actors} found.</Alert>
       }
     } catch (error) {
       console.error("Error fetching actor:", error);
     }
-    setState(prevState => {
-      return {
-        ...prevState,
-        tmpFilters: {
-          ...prevState.tmpFilters,
-          actors: actors
-        }
-      }
-    });
     localStorage.setItem('actors', actors);
   }
 
@@ -315,35 +303,17 @@ function App() {
             ...prevState,
             tmpFilters: {
               ...prevState.tmpFilters,
-              directorID: directorID
+              directorID: directorID,
+              director: director
             }
           }
         });
       } else {
         console.log("No director found with the name:", director);
-        <Alert severity="error">No director named {director} found.</Alert>
-        setState(prevState => {
-          return {
-            ...prevState,
-            tmpFilters: {
-              ...prevState.tmpFilters,
-              directorID: 0
-            }
-          }
-        });
       }
     } catch (error) {
       console.error("Error fetching director:", error);
     }
-    setState(prevState => {
-      return {
-        ...prevState,
-        tmpFilters: {
-          ...prevState.tmpFilters,
-          director: director
-        }
-      }
-    });
     localStorage.setItem('director', director);
   }
 
@@ -375,8 +345,8 @@ function App() {
           actorID: 0,
           director: "",
           directorID: 0,
-          genre: "",
-          genreName: ""
+          genre: "All",
+          genreName: "All"
         },
         current_page: 1,
         total_pages: 0
@@ -414,8 +384,14 @@ function App() {
       }
     });
     localStorage.setItem("current_page", state.current_page + n);
-    document.getElementById('search-button').click();
   }
+
+  React.useEffect(() => {
+    console.log("Filters state changed:", state.filters);
+    if (state.filters.state === 0) return;
+    document.getElementById('search-button').click();
+    window.scrollTo(0, 0);
+  }, [state.filters]);
 
   React.useEffect(() => {
     if (state.total_pages === 0) return;
