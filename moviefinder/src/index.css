@@ -22,16 +22,31 @@ header h1 {
 
 main {
   width: 100%;
-  max-width: 55%;
+  max-width: 1400px;
   margin: 0 auto;
+  padding: 0 15px;
+  display: grid;
+  grid-template-columns: 1fr 200px;
+  gap: 10px;
+  align-items: start;
 }
 
 section {
   padding: 15px;
 }
 
+.searchbow-wrap {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  grid-column: 1;
+  grid-row: 1;
+  margin-bottom: 20px;
+  padding: 0;
+}
+
 .search-box {
-  width: 100%;
+  flex: 1;
   padding: 15px;
   display: block;
 
@@ -53,10 +68,22 @@ section {
   box-shadow: 0 0 8px 3px #248aff;
 }
 
+.search-button-wrap {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  margin-bottom: 0;
+  padding: 0;
+  grid-column: 2;
+  grid-row: 1;
+}
+
 .results {
   display: flex;
   flex-wrap: wrap;
   margin:  0 -15px;
+  grid-column: 1 ;
+  grid-row: 3;
 }
 
 .results .result {
@@ -66,6 +93,8 @@ section {
   display: flex;
   flex-direction: column;
   cursor: pointer;
+  flex: 1 1 33.333%;
+  min-width: 200px;
 }
 
 .results .result img {
@@ -181,7 +210,7 @@ section {
 
 .reset-button {
   display: block;
-  margin: 30px auto;
+  margin: 0px auto;
   padding: 15px 30px;
   font-size: 18px;
   font-weight: 700;
@@ -195,16 +224,21 @@ section {
   cursor: pointer;
 
   transition: 0.4s ease-out;
+  grid-row: 4;
+  grid-column: 1 / span 2;
 }
 
 .filter {
-  position: absolute;
+  position: relative;
   display: block;
-  width: 300px;
+  width: 160%;
   box-sizing: border-box;
   background: #202955;
-  right: 4%;
-  top: 20%;
+  margin: 0;
+  padding: 15px;
+  border-radius: 8px;
+  grid-column: 2;
+  grid-row: 2 / span 2;
 }
 
 .filter h3 {
@@ -313,38 +347,41 @@ section {
   box-shadow: 0 0 8px 3px #248aff;
 }
 .search-button-wrap {
-  display: flex;
+  display: inline-flex;
   gap: 10px;
-  margin-top: 20px;
-  position: absolute;
-  right: 15.5%;
-  top: 7.7%;
-  width: 7%;
+  align-items: stretch;
+  margin-bottom: 20px;
+  margin-left: 10px;
 }
 
 .search-button-wrap button {
-  flex: 1;
-  padding: 15px;
-  font-size: 16px;
-  font-weight: 600;
+  padding: 18px 20px;
+  font-size: 18px;
+  font-weight: 700;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   transition: 0.4s ease-out;
   font-family: 'montserrat', sans-serif;
-  width: 100%;
+  background: #4484C4;
+  color: white;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .search-button-wrap button:hover {
+  background: #248aff;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 #reset-filters {
-  top: 2%;
-  right: 8%;
-  position: absolute;
-  width: 30%;
+  top: auto;
+  right: auto;
+  position: relative;
+  width: 100%;
+  max-width: 150px;
   padding: 10px 15px;
   margin: 10px 0;
   background-color: #e74c3c;
@@ -409,6 +446,8 @@ section {
   gap: 8px;
   flex-wrap: wrap;
   margin: 8px 0;
+  grid-row: 2;
+  grid-column: 1 / span 2;
 }
 
 .filter-chip {
@@ -433,12 +472,24 @@ section {
   color: white;
 }
 
-.pagination {
+#pagination-bottom {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 12px;
   margin: 20px 0;
+  grid-row: 5;
+  grid-column: 1 / span 2;
+}
+#pagination-top {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin: 7px 0;
+  margin-left: 400px;
+  grid-row: 2;
+  grid-column: 1 / span 2;
 }
 
 .pagination button {
@@ -464,4 +515,236 @@ section {
 .pagination span {
   font-size: 14px;
   color: #ccc;
+}
+
+#page-input-bottom,
+#page-input-top {
+  background: rgb(51, 51, 100);
+  border: none;
+  color: #ccc;
+  font-size: 14px;
+  width: auto;
+  text-align: center;
+}
+
+#page-input-bottom:focus,
+#page-input-top:focus {
+  outline: none;
+  border-bottom: 1px solid #ccc;
+}
+
+#page-input-bottom::-webkit-inner-spin-button,
+#page-input-bottom::-webkit-outer-spin-button,
+#page-input-top::-webkit-inner-spin-button,
+#page-input-top::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+#page-input-bottom[type=number],
+#page-input-top[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Tablet - 768px and below */
+@media (max-width: 768px) {
+  header h1 {
+    font-size: 36px;
+  }
+
+  .search-box {
+    font-size: 18px;
+    padding: 12px;
+  }
+
+  .results .result {
+    width: 50%;
+    flex: 1 1 50%;
+    min-width: 150px;
+  }
+
+  .results .result h3 {
+    font-size: 16px;
+  }
+
+  .results .result h5 {
+    font-size: 13px;
+  }
+
+  .filter {
+    margin: 20px 0;
+  }
+
+  .popup .content {
+    padding: 15px;
+  }
+
+  .popup .content h2 {
+    font-size: 22px;
+  }
+
+  .popup .content .plot {
+    flex-direction: column;
+  }
+
+  .popup .content .plot img {
+    flex: 1 1 100%;
+    max-width: 100%;
+    margin-bottom: 15px;
+  }
+
+  .popup .content .plot p {
+    flex: 1 1 100%;
+  }
+}
+
+/* Mobile - 480px and below */
+@media (max-width: 480px) {
+  header {
+    padding: 30px 10px 0px;
+  }
+
+  header h1 {
+    font-size: 28px;
+  }
+
+  .search-box {
+    font-size: 16px;
+    padding: 10px;
+  }
+
+  section {
+    padding: 10px;
+  }
+
+  .results {
+    margin: 0 -10px;
+  }
+
+  .results .result {
+    width: 100%;
+    padding: 10px;
+    flex: 1 1 100%;
+    min-width: unset;
+  }
+
+  .results .result h3 {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .results .result h5 {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .search-button-wrap {
+    width: 100%;
+    gap: 8px;
+  }
+
+  .search-button-wrap button {
+    padding: 12px;
+    font-size: 14px;
+    flex: 1;
+  }
+
+  .filter {
+    width: 100%;
+    max-width: 100%;
+    margin: 15px 0;
+  }
+
+  .filter h3 {
+    font-size: 16px;
+  }
+
+  .filter select,
+  #release_before_filter,
+  #release_after_filter,
+  #actors_filter,
+  #director_filter,
+  #release_year_filter,
+  #apply-filters {
+    font-size: 14px;
+    padding: 8px 12px;
+    margin: 8px 0;
+  }
+
+  #apply-filters {
+    width: 100%;
+  }
+
+  #reset-filters {
+    width: 100%;
+    max-width: 100%;
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+
+  .reset-button {
+    padding: 12px 20px;
+    font-size: 16px;
+  }
+
+  .popup {
+    overflow-y: auto;
+  }
+
+  .popup .content {
+    padding: 15px 10px;
+    width: 100%;
+  }
+
+  .popup .content h2 {
+    font-size: 18px;
+  }
+
+  .popup .content h2 span {
+    font-size: 14px;
+  }
+
+  .popup .content .close {
+    padding: 10px 20px;
+    font-size: 14px;
+    width: 100%;
+    margin-top: 15px;
+  }
+
+  .pagination {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .pagination button {
+    padding: 6px 10px;
+    font-size: 14px;
+  }
+
+  #page-input {
+    font-size: 12px;
+    padding: 4px;
+  }
+
+  .active-filters {
+    gap: 6px;
+  }
+
+  .filter-chip {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+  }
+}
+
+/* Large screens - 1200px and above */
+@media (min-width: 1200px) {
+  main {
+    max-width: 1200px;
+  }
+
+  .results .result {
+    width: 25%;
+    flex: 1 1 25%;
+  }
 }

@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react'
 
 import axios from 'axios';
 
-function Filter( {applyFilters, handleMovieType, handleReleaseYear, handleReleaseBefore, handleReleaseAfter, handleActors, handleDirector, handleGenre, defaultType, defaultReleaseAfter, defaultReleaseBefore, defaultReleaseYear, defaultActors, defaultDirector, defaultGenre, resetFilters} ) {
+function Filter( {applyFilters, handleMovieType, handleReleaseYear, handleReleaseBefore, handleReleaseAfter, handleActors, handleDirector, handleGenre, handleSort, defaultType, defaultReleaseAfter, defaultReleaseBefore, defaultReleaseYear, defaultActors, defaultDirector, defaultGenre, defaultSort, resetFilters} ) {
     const [state, setState] = useState({
         genresList: []
     });
@@ -55,6 +55,18 @@ function Filter( {applyFilters, handleMovieType, handleReleaseYear, handleReleas
                 <option value={genre.id} key={genre.id}>{genre.name}</option>
             ))}
         </select>
+    </p>
+    <p> Sort :
+    <select id='sort_filter' value={defaultSort} onChange={e => handleSort(e.target.value)}>
+      <option value="popularity.desc">Popularity ↓</option>
+      <option value="popularity.asc">Popularity ↑</option>
+      <option value="release_date.desc">Release Date ↓</option>
+      <option value="release_date.asc">Release Date ↑</option>
+      <option value="vote_average.desc">Vote Average ↓</option>
+      <option value="vote_average.asc">Vote Average ↑</option>
+      <option value="title.desc">Title ↓</option>
+      <option value="title.asc">Title ↑</option>
+    </select>
     </p>
     <p>
         <button id='apply-filters' onClick={applyFilters}>Apply Filters</button>
